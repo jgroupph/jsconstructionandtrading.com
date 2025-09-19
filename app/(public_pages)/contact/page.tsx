@@ -1,4 +1,5 @@
 "use client";
+import { useState, useEffect } from "react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Card, CardContent } from "@/components/ui/card"
@@ -6,42 +7,127 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Phone, Mail, MapPin, Clock, Facebook } from "lucide-react"
 
+interface Address {
+  officeType: string
+  building: string
+  streetAddress: string
+  subdivision: string
+  barangay: string
+  city: string
+  province: string
+  country: string
+  postalCode: string
+}
+
+interface ContactData {
+  mobilePhone: string
+  landlineNumber: string
+  emails: string[]
+  facebookLink: string
+  googleMapsSrc: string
+  addresses: Address[]
+}
+
 export default function ContactPage() {
+  const [contactData, setContactData] = useState<ContactData | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchContactData = async () => {
+      try {
+        const response = await fetch("/api/contact")
+        if (response.ok) {
+          const data = await response.json()
+          setContactData(data)
+        }
+      } catch (error) {
+        console.error("Error fetching contact data:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchContactData()
+  }, [])
+
+  // Fallback data while loading
+  const defaultData: ContactData = {
+    mobilePhone: "+63925 551 0987",
+    landlineNumber: "+628 788 1613",
+    emails: ["info.jsprimeconstruction@gmail.com", "info.jsconstructionandtrading@gmail.com"],
+    facebookLink: "https://www.facebook.com/js.primeconstruction",
+    googleMapsSrc: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d966.0397265328708!2d121.04332891856315!3d14.41800154359728!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397d0370b94827b%3A0x476639e09c165bb5!2sCivic%20Prime%20Condominium!5e0!3m2!1sen!2sph!4v1719562752538!5m2!1sen!2sph",
+    addresses: [
+      {
+        officeType: "Head Office",
+        building: "Civic Prime Building",
+        streetAddress: "2301 Civic Drive",
+        subdivision: "Filinvest Corporate City",
+        barangay: "Alabang",
+        city: "Muntinlupa City",
+        province: "",
+        country: "Philippines",
+        postalCode: "1781",
+      },
+      {
+        officeType: "Satellite Office",
+        building: "Verdana Center",
+        streetAddress: "Daang Hari Molino IV",
+        subdivision: "",
+        barangay: "",
+        city: "Bacoor City",
+        province: "Cavite",
+        country: "Philippines",
+        postalCode: "",
+      },
+    ],
+  }
+
+  const data = contactData || defaultData
+
+  const formatAddress = (address: Address) => {
+    const parts = []
+    if (address.building) parts.push(address.building)
+    parts.push(address.streetAddress)
+    if (address.subdivision) parts.push(address.subdivision)
+    if (address.barangay) parts.push(address.barangay)
+    parts.push(address.city)
+    if (address.province) parts.push(address.province)
+    if (address.country) parts.push(address.country)
+    if (address.postalCode) parts.push(address.postalCode)
+    return parts.filter(Boolean)
+  }
+
   const contactMethods = [
     {
       icon: Phone,
       title: "Our Mobile Number",
-      details: ["+63925 551 0987"],
+      details: [data.mobilePhone],
       color: "text-green-600",
       bgColor: "bg-green-50",
     },
     {
       icon: Phone,
-      title: "Our Landline Number",
-      details: ["+628 788 1613"],
+      title: "Our Landline Number", 
+      details: [data.landlineNumber],
       color: "text-blue-600",
       bgColor: "bg-blue-50",
     },
     {
       icon: Mail,
       title: "Email Us Here",
-      details: ["info.jsprimeconstruction@gmail.com", "info.jsconstructionandtrading@gmail.com"],
+      details: data.emails.filter(email => email.trim()),
       color: "text-orange-600",
       bgColor: "bg-orange-50",
     },
     {
       icon: MapPin,
       title: "Our Address",
-      details: [
-        "Head Office:",
-        "Civic Prime Building, 2301 Civic Drive,",
-        "Filinvest Corporate City, Alabang",
-        "Muntinlupa City Philippines 1781",
-        "",
-        "Satellite Office:",
-        "Verdana Center, Daang Hari Molino IV,",
-        "Bacoor City, Cavite",
-      ],
+      details: data.addresses.flatMap(address => [
+        `${address.officeType}:`,
+        ...formatAddress(address),
+        ""
+      ]).filter(Boolean).slice(0, -1), // Remove last empty string
       color: "text-purple-600",
       bgColor: "bg-purple-50",
     },
@@ -79,7 +165,7 @@ export default function ContactPage() {
             className="bg-[#CBAD8D] hover:bg-[#A48374] text-[#3A2D28] px-8 py-3 text-lg font-semibold border-2 border-[#EBE3DB] hover:border-[#A48374] transition-all duration-300 hover:scale-105"
             data-aos="zoom-in"
             style={{ animationDelay: "400ms" }}
-            onClick={() => window.open('tel:+639255510987')}
+            onClick={() => window.open(`tel:${data.mobilePhone}`)}
           >
             Call Us Now
           </Button>
@@ -89,16 +175,22 @@ export default function ContactPage() {
       {/* Map Section */}
       <section className="py-0">
         <div className="w-full">
-          <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d966.0397265328708!2d121.04332891856315!3d14.41800154359728!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397d0370b94827b%3A0x476639e09c165bb5!2sCivic%20Prime%20Condominium!5e0!3m2!1sen!2sph!4v1719562752538!5m2!1sen!2sph"
-            width="100%"
-            height="500"
-            style={{ border: 0 }}
-            allowFullScreen
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            className="w-full"
-          />
+          {loading ? (
+            <div className="w-full h-[500px] bg-gray-200 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#A48374]"></div>
+            </div>
+          ) : (
+            <iframe
+              src={data.googleMapsSrc}
+              width="100%"
+              height="500"
+              style={{ border: 0 }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              className="w-full"
+            />
+          )}
         </div>
       </section>
 
@@ -164,7 +256,7 @@ export default function ContactPage() {
                 <p className="text-muted-foreground">
                   Follow us on social media for project updates, construction tips, and company news.
                 </p>
-                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white" onClick={() => window.open('https://www.facebook.com/js.primeconstruction', '_blank')}>
+                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white" onClick={() => window.open(data.facebookLink, '_blank')}>
                   <Facebook className="w-5 h-5 mr-2" />
                   Follow on Facebook
                 </Button>
@@ -172,13 +264,13 @@ export default function ContactPage() {
               <div className="pt-6 border-t border-muted space-y-4">
                 <h4 className="font-semibold text-foreground">Quick Contact</h4>
                 <div className="space-y-2">
-                  <Button variant="outline" className="w-full justify-start bg-transparent" onClick={() => window.open('tel:+639255510987')}>
+                  <Button variant="outline" className="w-full justify-start bg-transparent" onClick={() => window.open(`tel:${data.mobilePhone}`)}>
                     <Phone className="w-4 h-4 mr-2" />
-                    Call: +63925 551 0987
+                    Call: {data.mobilePhone}
                   </Button>
                   <Button variant="outline" className="w-full justify-start bg-transparent">
                     <Mail className="w-4 h-4 mr-2" />
-                    <span className="break-all">Email: info.jsprimeconstruction@gmail.com</span>
+                    <span className="break-all">Email: {data.emails[0]}</span>
                   </Button>
                 </div>
               </div>
@@ -198,21 +290,16 @@ export default function ContactPage() {
             <h2 className="text-3xl font-bold text-[#3A2D28]" data-aos="fade-up">Our Address</h2>
           </div>
           <div className="grid md:grid-cols-2 gap-8">
-            <div className="bg-white rounded-xl shadow p-8 text-center" data-aos="fade-up" data-aos-delay="100">
-              <h3 className="text-xl font-bold text-[#A48374] mb-2">Head Office</h3>
-              <p className="text-[#3A2D28]">
-                Civic Prime Building, 2301 Civic Drive,<br />
-                Filinvest Corporate City, Alabang<br />
-                Muntinlupa City Philippines 1781
-              </p>
-            </div>
-            <div className="bg-white rounded-xl shadow p-8 text-center" data-aos="fade-up" data-aos-delay="200">
-              <h3 className="text-xl font-bold text-[#A48374] mb-2">Satellite Office</h3>
-              <p className="text-[#3A2D28]">
-                Verdana Center, Daang Hari Molino IV,<br />
-                Bacoor City, Cavite
-              </p>
-            </div>
+            {data.addresses.map((address, index) => (
+              <div key={index} className="bg-white rounded-xl shadow p-8 text-center" data-aos="fade-up" data-aos-delay={`${(index + 1) * 100}`}>
+                <h3 className="text-xl font-bold text-[#A48374] mb-2">{address.officeType}</h3>
+                <div className="text-[#3A2D28] space-y-1">
+                  {formatAddress(address).map((line, lineIndex) => (
+                    <p key={lineIndex}>{line}{lineIndex < formatAddress(address).length - 1 ? "," : ""}</p>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>

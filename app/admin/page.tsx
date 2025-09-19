@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Building2, Truck, Award, Clock, Target, Users, Settings, LogOut } from "lucide-react"
+import { Building2, Truck, Award, Clock, Target, Users, Settings, LogOut, Phone } from "lucide-react"
 import { ScrollAnimation } from "@/components/admin/scroll-animation"
 import { LogoutConfirmDialog } from "@/components/admin/logout-confirm-dialog"
 import { showErrorToast } from "@/lib/toast-utils"
@@ -103,6 +103,7 @@ export default function AdminDashboard() {
                   { href: "/admin/milestones", icon: Target, text: "Manage Company Milestones" },
                   { href: "/admin/mission-vision", icon: Users, text: "Update Mission & Vision" },
                   { href: "/admin/core-values", icon: Clock, text: "Manage Core Values" },
+                  { href: "/admin/contacts", icon: Phone, text: "Update Contact Information" },
                   { href: "/admin/settings", icon: Settings, text: "Account Settings" },
                   { href: "#", icon: LogOut, text: "Logout", isLogout: true },
                 ].map((action, index) => {

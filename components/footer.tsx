@@ -1,6 +1,83 @@
+"use client"
+
+import { useState, useEffect } from "react"
 import { Facebook } from "lucide-react"
 
+interface Address {
+  officeType: string
+  building: string
+  streetAddress: string
+  subdivision: string
+  barangay: string
+  city: string
+  province: string
+  country: string
+  postalCode: string
+}
+
+interface ContactData {
+  mobilePhone: string
+  landlineNumber: string
+  emails: string[]
+  facebookLink: string
+  googleMapsSrc: string
+  addresses: Address[]
+}
+
 export function Footer() {
+  const [contactData, setContactData] = useState<ContactData | null>(null)
+
+  useEffect(() => {
+    const fetchContactData = async () => {
+      try {
+        const response = await fetch("/api/contact")
+        if (response.ok) {
+          const data = await response.json()
+          setContactData(data)
+        }
+      } catch (error) {
+        console.error("Error fetching contact data:", error)
+      }
+    }
+
+    fetchContactData()
+  }, [])
+
+  // Fallback data while loading or if fetch fails
+  const defaultData: ContactData = {
+    mobilePhone: "+63925 551 0987",
+    landlineNumber: "+628 788 1613",
+    emails: ["info.jsprimeconstruction@gmail.com", "info.jsconstructionandtrading@gmail.com"],
+    facebookLink: "https://www.facebook.com/js.primeconstruction",
+    googleMapsSrc: "",
+    addresses: [
+      {
+        officeType: "Head Office",
+        building: "Civic Prime Building",
+        streetAddress: "2301 Civic Drive",
+        subdivision: "Filinvest Corporate City",
+        barangay: "Alabang",
+        city: "Muntinlupa City",
+        province: "",
+        country: "Philippines",
+        postalCode: "1781",
+      },
+      {
+        officeType: "Satellite Office",
+        building: "Verdana Center",
+        streetAddress: "Daang Hari Molino IV",
+        subdivision: "",
+        barangay: "",
+        city: "Bacoor City",
+        province: "Cavite",
+        country: "Philippines",
+        postalCode: "",
+      },
+    ],
+  }
+
+  const data = contactData || defaultData
+
   return (
   <footer className="bg-[#3A2D28] text-[#EBE3DB] py-16 px-6">
   <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-12">
@@ -9,20 +86,19 @@ export function Footer() {
           <div className="space-y-4">
             <div>
               <h4 className="font-semibold text-[#CBAD8D] mb-2">Address</h4>
-              <div className="text-[#D1C7BD] space-y-1">
-                <p className="font-medium">Head Office:</p>
-                <p>Civic Prime Building</p>
-                <p>2301 Civic Drive,</p>
-                <p>Filinvest Corporate City,</p>
-                <p>Alabang Muntinlupa City,</p>
-                <p>Philippines 1781</p>
-              </div>
-              <div className="text-[#D1C7BD] space-y-1 mt-4">
-                <p className="font-medium">Satellite Office:</p>
-                <p>Verdana Center,</p>
-                <p>Daang Hari Molino IV,</p>
-                <p>Bacoor City, Cavite</p>
-              </div>
+              {data.addresses.map((address, index) => (
+                <div key={index} className="text-[#D1C7BD] space-y-1 mb-4">
+                  <p className="font-medium">{address.officeType}:</p>
+                  {address.building && <p>{address.building}</p>}
+                  <p>{address.streetAddress}</p>
+                  {address.subdivision && <p>{address.subdivision}</p>}
+                  {address.barangay && <p>{address.barangay}</p>}
+                  <p>{address.city}</p>
+                  {address.province && <p>{address.province}</p>}
+                  {address.country && <p>{address.country}</p>}
+                  {address.postalCode && <p>{address.postalCode}</p>}
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -31,20 +107,21 @@ export function Footer() {
           <div>
             <h4 className="font-semibold text-[#CBAD8D] mb-2">Contact</h4>
             <div className="text-[#D1C7BD] space-y-1">
-              <p>Landline: +63925 551 0987</p>
-              <p>Mobile: +628 788 1613</p>
+              <p>Mobile: {data.mobilePhone}</p>
+              <p>Landline: {data.landlineNumber}</p>
             </div>
           </div>
           <div>
             <h4 className="font-semibold text-[#CBAD8D] mb-2">Email</h4>
             <div className="text-[#D1C7BD] space-y-1">
-              <p>info.jprimeconstruction@gmail.com</p>
-              <p>info.sconstruction@trading@gmail.com</p>
+              {data.emails.filter(email => email.trim()).map((email, index) => (
+                <p key={index}>{email}</p>
+              ))}
             </div>
           </div>
           <div>
             <h3 className="text-xl font-semibold text-[#EBE3DB] mb-4">SOCIAL MEDIA</h3>
-            <a href="https://www.facebook.com/js.primeconstruction" target="_blank" rel="noopener noreferrer">
+            <a href={data.facebookLink} target="_blank" rel="noopener noreferrer">
               <Facebook className="w-6 h-6 text-[#D1C7BD] hover:text-[#EBE3DB] cursor-pointer transition-colors" />
             </a>
           </div>

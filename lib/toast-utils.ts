@@ -68,6 +68,10 @@ export const toastMessages = {
   missionVisionUpdatedSuccess: "Mission & Vision updated successfully",
   missionVisionUpdateFailed: "Failed to update Mission & Vision",
   
+  // Contact messages
+  contactUpdatedSuccess: "Contact information updated successfully",
+  contactUpdateFailed: "Failed to update contact information",
+  
   // File validation messages
   invalidFileType: "Invalid file type. Only JPEG, PNG, GIF, and WebP images are allowed.",
   fileSizeExceeded: "File size too large. Maximum size is 5MB.",

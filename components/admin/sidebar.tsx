@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Home, Truck, Award, Building2, Settings, LogOut, FileText, Target, Heart } from "lucide-react"
+import { Home, Truck, Award, Building2, Settings, LogOut, FileText, Target, Heart, Phone } from "lucide-react"
 import { LogoutConfirmDialog } from "@/components/admin/logout-confirm-dialog"
 
 const navigation = [
@@ -15,6 +15,7 @@ const navigation = [
   { name: "Milestones", href: "/admin/milestones", icon: FileText },
   { name: "Mission & Vision", href: "/admin/mission-vision", icon: Target },
   { name: "Core Values", href: "/admin/core-values", icon: Heart },
+  { name: "Contact Info", href: "/admin/contacts", icon: Phone },
   { name: "Settings", href: "/admin/settings", icon: Settings },
 ]
 

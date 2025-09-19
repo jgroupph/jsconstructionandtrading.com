@@ -9,9 +9,19 @@ import { Truck, Clock, Shield, Award, Phone, Mail } from "lucide-react"
 import { useEffect, useState } from "react"
 import { EquipmentSkeleton } from "@/components/admin/equipment-skeleton"
 
+interface ContactData {
+  mobilePhone: string
+  landlineNumber: string
+  emails: string[]
+  facebookLink: string
+  googleMapsSrc: string
+  addresses: any[]
+}
+
 export default function HeavyEquipmentRentalPage() {
   const [equipment, setEquipment] = useState<any[]>([])
   const [equipmentLoading, setEquipmentLoading] = useState(true)
+  const [contactData, setContactData] = useState<ContactData | null>(null)
 
   useEffect(() => {
     //fetch equipment from API
@@ -43,13 +53,36 @@ export default function HeavyEquipmentRentalPage() {
       }
     }
 
+    // Fetch contact data
+    const fetchContactData = async () => {
+      try {
+        const response = await fetch("/api/contact")
+        if (response.ok) {
+          const data = await response.json()
+          setContactData(data)
+        }
+      } catch (error) {
+        console.error("Error fetching contact data:", error)
+      }
+    }
+
     fetchEquipment()
+    fetchContactData()
   }, [])
 
+  // Fallback contact info
+  const defaultContactData: ContactData = {
+    mobilePhone: "+639255510987",
+    landlineNumber: "+628 788 1613",
+    emails: ["jsprimeconstruction@gmail.com"],
+    facebookLink: "",
+    googleMapsSrc: "",
+    addresses: []
+  }
 
-  // Company contact info
-  const companyPhone = "+639255510987";
-  const companyEmail = "jsprimeconstruction@gmail.com";
+  const contact = contactData || defaultContactData
+  const companyPhone = contact.mobilePhone
+  const companyEmail = contact.emails[0] || "jsprimeconstruction@gmail.com"
 
   // Helper to open phone dialer
   const handleCall = () => {
