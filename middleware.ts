@@ -18,7 +18,7 @@ async function verifyJWT(token: string) {
 export async function middleware(req: NextRequest) {
   const token = req.cookies.get("token")?.value;
 
-  const protectedPaths = ["/admin", "admin/equipment", "admin/brands","admin/projects","admin/milestones","admin/mission-vision","admin/core-values","admin/settingss", "/profile"];
+  const protectedPaths = ["/admin", "admin/equipment", "admin/brands","admin/projects","admin/milestones","admin/mission-vision","admin/core-values","admin/settings","admin/contacts", "/profile"];
   const isProtected = protectedPaths.some((path) =>
     req.nextUrl.pathname.startsWith(path)
   );
