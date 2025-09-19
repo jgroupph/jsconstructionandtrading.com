@@ -56,6 +56,7 @@ export default function MissionVisionPage() {
 
   const handleSubmit = async (formData: Omit<MissionVision, "updatedAt">) => {
     try {
+
       const res = await fetch(`/api/mission-vision`, {
         method: "PUT",
         headers: {
@@ -64,8 +65,18 @@ export default function MissionVisionPage() {
         body: JSON.stringify({formData, updatedAt: new Date()}),
       });
       
+
+      
       if (!res.ok) {
-        const error = await res.json()
+        const errorText = await res.text();
+        
+        let error;
+        try {
+          error = JSON.parse(errorText);
+        } catch {
+          error = { error: `HTTP ${res.status}: ${errorText}` };
+        }
+        
         showErrorToast(error.error || toastMessages.missionVisionUpdateFailed)
         throw new Error(error.error || "Failed to update mission & vision")
       }
@@ -79,6 +90,7 @@ export default function MissionVisionPage() {
       showSuccessToast(toastMessages.missionVisionUpdatedSuccess)
       
     } catch (error) {
+      console.error("Error in handleSubmit:", error);
       showErrorToast(toastMessages.missionVisionUpdateFailed)
       throw error
     }

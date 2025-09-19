@@ -1,6 +1,7 @@
 import clientPromise from "@/lib/mongodb"
 import { type NextRequest, NextResponse } from "next/server"
 
+// GET method to fetch contact information
 export async function GET() {
   try {
     const client = await clientPromise
@@ -57,22 +58,65 @@ export async function GET() {
   }
 }
 
+// PUT method to update contact information
 export async function PUT(req: NextRequest) {
   try {
     const client = await clientPromise
     const db = client.db(process.env.DB_NAME)
+    
     const body = await req.json()
-
     const { formData, updatedAt } = body
 
     // Remove _id field from formData to prevent immutable field error
     const { _id, ...updateData } = formData
 
-    const result = await db.collection("contact").updateOne({}, { $set: { ...updateData, updatedAt } }, { upsert: true })
+    const result = await db.collection("contact").updateOne(
+      {}, 
+      { $set: { ...updateData, updatedAt } }, 
+      { upsert: true }
+    )
 
-    return NextResponse.json(result, { status: 200 })
+    return NextResponse.json({ 
+      success: true, 
+      message: "Contact updated successfully",
+      result 
+    }, { status: 200 })
+    
   } catch (error) {
     console.error("Error updating contact:", error)
-    return NextResponse.json({ error: "Failed to update contact" }, { status: 500 })
+    return NextResponse.json({ 
+      success: false,
+      error: "Failed to update contact" 
+    }, { status: 500 })
+  }
+}
+
+// POST method (optional - for creating new contact)
+export async function POST(req: NextRequest) {
+  try {
+    const client = await clientPromise
+    const db = client.db(process.env.DB_NAME)
+    
+    const body = await req.json()
+    const contactData = {
+      ...body,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+
+    const result = await db.collection("contact").insertOne(contactData)
+
+    return NextResponse.json({ 
+      success: true, 
+      message: "Contact created successfully",
+      result 
+    }, { status: 201 })
+    
+  } catch (error) {
+    console.error("Error creating contact:", error)
+    return NextResponse.json({ 
+      success: false,
+      error: "Failed to create contact" 
+    }, { status: 500 })
   }
 }

@@ -16,6 +16,11 @@ async function verifyJWT(token: string) {
 }
 
 export async function middleware(req: NextRequest) {
+  // Skip middleware for API routes
+  if (req.nextUrl.pathname.startsWith('/api/')) {
+    return NextResponse.next();
+  }
+
   const token = req.cookies.get("token")?.value;
 
   const protectedPaths = ["/admin", "admin/equipment", "admin/brands","admin/projects","admin/milestones","admin/mission-vision","admin/core-values","admin/settings","admin/contacts", "/profile"];
@@ -40,5 +45,14 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next|favicon.ico).*)"], // runs on all routes (including /api) except Next internals
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+  ],
 };

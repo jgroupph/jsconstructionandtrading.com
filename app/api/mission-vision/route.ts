@@ -19,20 +19,37 @@ export async function GET() {
 
 export async function PUT(req: NextRequest) {
     try {
+        
         const client = await clientPromise;
         const db = client.db(process.env.DB_NAME);
+        
         const body = await req.json();
 
         const { formData, updatedAt } = body;
 
+        if (!formData || !formData.mission || !formData.vision) {
+            return NextResponse.json({ error: "Invalid form data" }, { status: 400 });
+        }
+
         const result = await db.collection("mision-vision").updateOne(
             { },
-            { $set: { ...formData, updatedAt } }
+            { $set: { ...formData, updatedAt } },
+            { upsert: true }
         );
 
         return NextResponse.json(result, { status: 200 });
     } catch (error) {
-        console.error("Error updating mission-vision:", error);
         return NextResponse.json({ error: "Failed to update mission-vision" }, { status: 500 });
     }
+}
+
+export async function OPTIONS(req: NextRequest) {
+    return new NextResponse(null, {
+        status: 200,
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        },
+    });
 }

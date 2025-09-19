@@ -100,15 +100,36 @@ export default function ContactManagement() {
         }),
       })
 
-      if (response.ok) {
+      if (!response.ok) {
+        // Handle HTTP errors
+        const errorText = await response.text()
+        console.error(`HTTP Error ${response.status}:`, errorText)
+        
+        let errorMessage = toastMessages.contactUpdateFailed
+        
+        // Try to parse as JSON if possible
+        try {
+          const errorJson = JSON.parse(errorText)
+          errorMessage = errorJson.error || errorMessage
+        } catch {
+          // If not JSON, use the text or default message
+          errorMessage = errorText || errorMessage
+        }
+        
+        showErrorToast(errorMessage)
+        return
+      }
+
+      const result = await response.json()
+      if (result.success) {
         showSuccessToast(toastMessages.contactUpdatedSuccess)
       } else {
-        const error = await response.json()
-        showErrorToast(error.error || toastMessages.contactUpdateFailed)
+        showErrorToast(result.error || toastMessages.contactUpdateFailed)
       }
+      
     } catch (error) {
       console.error("Error updating contact:", error)
-      showErrorToast(toastMessages.contactUpdateFailed)
+      showErrorToast(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setSaving(false)
     }
