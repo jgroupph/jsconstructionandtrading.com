@@ -62,7 +62,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
               Key: typeof oldBrandImg === "string" ? oldBrandImg : "",
             })
           );
-          console.log("Deleted old image:", oldBrandImg);
+          console.log("Deleted old image: ", oldBrandImg);
         } catch (err) {
           console.error("Failed to delete old R2 image:", err);
         }
